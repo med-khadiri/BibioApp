@@ -1,0 +1,9 @@
+com\biblio\biblioapp\controlers\DatabaseConfig.class
+com\biblio\biblioapp\controlers\LivreDAO.class
+com\biblio\biblioapp\controlers\LivreServlet.class
+com\biblio\biblioapp\Main.class
+com\biblio\biblioapp\models\Emprunt.class
+com\biblio\biblioapp\models\User.class
+com\biblio\biblioapp\resources\JakartaEE11Resource.class
+com\biblio\biblioapp\JakartaRestConfiguration.class
+com\biblio\biblioapp\models\Livre.class
