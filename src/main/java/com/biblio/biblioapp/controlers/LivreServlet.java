@@ -13,11 +13,13 @@ import java.util.List;
 
 @WebServlet("/livres")
 public class LivreServlet extends HttpServlet {
+
     private LivreDAO livreDAO;
 
     @Override
     public void init() throws ServletException {
-        livreDAO = new LivreDAO(); // Le DAO utilise la connexion centralisée via DatabaseConfig
+        super.init();
+        livreDAO = new LivreDAO();
     }
 
     @Override
@@ -47,48 +49,46 @@ public class LivreServlet extends HttpServlet {
         }
     }
 
-    private void listLivres(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        List<Livre> livres = livreDAO.getAllLivres();
-        request.setAttribute("livres", livres);
-        request.getRequestDispatcher("livres.jsp").forward(request, response);
-    }
-
-    private void showAddForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.getRequestDispatcher("add-livre.jsp").forward(request, response);
-    }
-
-    private void showEditForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        int id = Integer.parseInt(request.getParameter("id"));
-        Livre livre = livreDAO.getLivreById(id);
-        request.setAttribute("livre", livre);
-        request.getRequestDispatcher("edit-livre.jsp").forward(request, response);
-    }
-
-    private void deleteLivre(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        int id = Integer.parseInt(request.getParameter("id"));
-        livreDAO.deleteLivre(id);
-        response.sendRedirect("livres?action=list");
-    }
-
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
+        if (action == null) {
+            action = "list";
+        }
 
         try {
             switch (action) {
                 case "add":
                     addLivre(request, response);
                     break;
-                case "edit":
+                case "update":
                     updateLivre(request, response);
                     break;
                 default:
-                    response.sendRedirect("livres?action=list");
+                    listLivres(request, response);
                     break;
             }
         } catch (Exception e) {
             throw new ServletException(e);
         }
+    }
+
+    private void listLivres(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        List<Livre> livres = livreDAO.getAllLivres();
+        System.out.println("Livres récupérés : " + livres); // Debug
+        request.setAttribute("livres", livres);
+        request.getRequestDispatcher("/manageLivres.jsp").forward(request, response);
+    }
+
+    private void showAddForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.getRequestDispatcher("livre-form.jsp").forward(request, response);
+    }
+
+    private void showEditForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        int id = Integer.parseInt(request.getParameter("id"));
+        Livre existingLivre = livreDAO.getLivreById(id);
+        request.setAttribute("livre", existingLivre);
+        request.getRequestDispatcher("livre-form.jsp").forward(request, response);
     }
 
     private void addLivre(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -97,9 +97,9 @@ public class LivreServlet extends HttpServlet {
         boolean dispo = Boolean.parseBoolean(request.getParameter("dispo"));
         String categorie = request.getParameter("categorie");
 
-        Livre livre = new Livre(0, titre, auteur, dispo, categorie);
-        livreDAO.addLivre(livre);
-        response.sendRedirect("livres?action=list");
+        Livre newLivre = new Livre(titre, auteur, dispo, categorie);
+        livreDAO.addLivre(newLivre);
+        response.sendRedirect("livres");
     }
 
     private void updateLivre(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -109,8 +109,15 @@ public class LivreServlet extends HttpServlet {
         boolean dispo = Boolean.parseBoolean(request.getParameter("dispo"));
         String categorie = request.getParameter("categorie");
 
-        Livre livre = new Livre(id, titre, auteur, dispo, categorie);
-        livreDAO.updateLivre(livre);
-        response.sendRedirect("livres?action=list");
+        Livre updatedLivre = new Livre(id, titre, auteur, dispo, categorie);
+        livreDAO.updateLivre(updatedLivre);
+        response.sendRedirect("livres");
+    }
+
+    private void deleteLivre(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        int id = Integer.parseInt(request.getParameter("id"));
+        livreDAO.deleteLivre(id);
+        response.sendRedirect("livres");
     }
 }
+

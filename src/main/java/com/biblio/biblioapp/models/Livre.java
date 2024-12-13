@@ -9,6 +9,14 @@ public class Livre {
 
     // Constructeurs
     public Livre() {}
+    
+    // Constructeur sans id (pour les ajouts)
+    public Livre(String titre, String auteur, boolean dispo, String categorie) {
+        this.titre = titre;
+        this.auteur = auteur;
+        this.dispo = dispo;
+        this.categorie = categorie;
+    }
 
     public Livre(int id, String titre, String auteur, boolean dispo, String categorie) {
         this.id = id;
